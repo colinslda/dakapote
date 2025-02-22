@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     practiceForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const pieceId = pieceSelect.value;
+        const pieceId = parseInt(pieceSelect.value); // Conversion en entier
         const notes = practiceForm.querySelector('textarea').value;
         const date = practiceForm.querySelector('input[type="date"]').value;
         const time = practiceForm.querySelector('input[type="time"]').value;
@@ -57,9 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sortPieceBtn.addEventListener('click', () => {
         practiceEntries.sort((a, b) => {
-            const pieceA = repertoire.find(p => p.id === a.pieceId);
-            const pieceB = repertoire.find(p => p.id === b.pieceId);
-            return (pieceA?.composer || '').localeCompare(pieceB?.composer || '');
+            const pieceA = repertoire.find(p => p.id === a.pieceId) || { composer: 'zzz' };
+            const pieceB = repertoire.find(p => p.id === b.pieceId) || { composer: 'zzz' };
+            return pieceA.composer.localeCompare(pieceB.composer);
         });
         renderPracticeEntries();
     });
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const div = document.createElement('div');
             div.className = 'entry';
             div.innerHTML = `
-                <p><strong>${piece ? `${piece.composer} - ${piece.title}` : 'Pièce supprimée'}</strong></p>
+                <p><strong>${piece ? piece.composer : 'Compositeur inconnu'}</strong> - ${piece ? piece.title : 'Titre inconnu'}</p>
                 <p>${entry.notes}</p>
                 <small>${entry.date} à ${entry.time}</small>
             `;
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const month = currentDate.getMonth();
         const today = new Date();
         currentMonthSpan.textContent = `${currentDate.toLocaleString('fr', { month: 'long' })} ${year}`;
-        
+
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         calendarDays.innerHTML = '';
