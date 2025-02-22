@@ -12,6 +12,9 @@ body {
     margin: 0 auto;
     height: 100vh;
     overflow: hidden;
+    -webkit-text-size-adjust: 100%; /* Empêche le zoom du texte */
+    -webkit-tap-highlight-color: transparent; /* Supprime l'effet de surbrillance au tap */
+    touch-action: pan-y; /* Autorise le scroll vertical uniquement, pas le pinch-to-zoom */
 }
 
 .container {
