@@ -12,6 +12,10 @@
 </head>
 <body>
     <div class="container">
+        <header>
+            <h1 class="app-title">DaCapo.</h1>
+        </header>
+
         <!-- Journal Section -->
         <div id="journal" class="tab-content active">
             <h1>Journal de Répétition</h1>
@@ -35,6 +39,25 @@
             <div id="event-list"></div>
         </div>
 
+        <!-- Repertoire Section -->
+        <div id="repertoire" class="tab-content">
+            <h1>Répertoire</h1>
+            <form id="repertoire-form">
+                <input type="text" placeholder="Compositeur" required>
+                <input type="text" placeholder="Titre" required>
+                <select required>
+                    <option value="" disabled selected>Type</option>
+                    <option value="Concerto">Concerto</option>
+                    <option value="Sonate">Sonate</option>
+                    <option value="Pièce solo">Pièce solo</option>
+                    <option value="Etudes/Caprices">Etudes/Caprices</option>
+                    <option value="Technique">Technique</option>
+                </select>
+                <button type="submit">Ajouter Pièce</button>
+            </form>
+            <div id="repertoire-list"></div>
+        </div>
+
         <!-- Navigation -->
         <nav class="bottom-nav">
             <button data-tab="journal" class="nav-item active">
@@ -42,6 +65,9 @@
             </button>
             <button data-tab="calendar" class="nav-item">
                 <span>Calendrier</span>
+            </button>
+            <button data-tab="repertoire" class="nav-item">
+                <span>Répertoire</span>
             </button>
         </nav>
     </div>
