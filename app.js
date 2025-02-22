@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Local Storage
+    // Local Storage (pour le moment, à migrer vers Firebase plus tard)
     let practiceEntries = JSON.parse(localStorage.getItem('practiceEntries')) || [];
     let events = JSON.parse(localStorage.getItem('events')) || [];
     let repertoire = JSON.parse(localStorage.getItem('repertoire')) || [];
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     practiceForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const pieceId = parseInt(pieceSelect.value); // Conversion en entier
+        const pieceId = parseInt(pieceSelect.value);
         const notes = practiceForm.querySelector('textarea').value;
         const date = practiceForm.querySelector('input[type="date"]').value;
         const time = practiceForm.querySelector('input[type="time"]').value;
@@ -121,8 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         calendarDays.innerHTML = '';
 
-        // Jours de la semaine
-        const daysOfWeek = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+        // Ajout des jours de la semaine
+        const daysOfWeek = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
         daysOfWeek.forEach(day => {
             const div = document.createElement('div');
             div.textContent = day;
@@ -130,8 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
             calendarDays.appendChild(div);
         });
 
-        // Espaces vides avant le 1er jour
-        for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
+        // Espaces vides avant le premier jour
+        const startDay = firstDay === 0 ? 6 : firstDay - 1; // Ajustement pour commencer le lundi
+        for (let i = 0; i < startDay; i++) {
             calendarDays.appendChild(document.createElement('div'));
         }
 
