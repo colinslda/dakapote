@@ -20,20 +20,35 @@
         <div id="journal" class="tab-content active">
             <h1>Journal de Répétition</h1>
             <form id="practice-form">
+                <select id="piece-select" required>
+                    <option value="" disabled selected>Choisir une pièce</option>
+                </select>
                 <textarea placeholder="Notes de la répétition..." required></textarea>
                 <input type="date" required>
                 <input type="time" required>
                 <button type="submit">Ajouter</button>
             </form>
+            <div class="sort-controls">
+                <button id="sort-date">Trier par Date</button>
+                <button id="sort-piece">Trier par Pièce</button>
+            </div>
             <div id="practice-list"></div>
         </div>
 
         <!-- Calendar Section -->
         <div id="calendar" class="tab-content">
             <h1>Calendrier</h1>
+            <div id="calendar-view">
+                <div class="calendar-header">
+                    <button id="prev-month">&lt;</button>
+                    <span id="current-month"></span>
+                    <button id="next-month">&gt;</button>
+                </div>
+                <div id="calendar-days"></div>
+            </div>
             <form id="event-form">
                 <input type="text" placeholder="Événement" required>
-                <input type="date" required>
+                <input type="date" id="event-date" required>
                 <button type="submit">Ajouter Deadline</button>
             </form>
             <div id="event-list"></div>
