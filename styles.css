@@ -20,7 +20,7 @@ body {
 .container {
     height: 100%;
     position: relative;
-    padding-top: 60px; /* Espace pour le titre */
+    padding-top: 60px;
 }
 
 header {
@@ -50,7 +50,7 @@ h1 {
 .tab-content {
     display: none;
     padding: 20px;
-    height: calc(100% - 120px); /* Ajusté pour la nav remontée */
+    height: calc(100% - 120px);
     overflow-y: auto;
     animation: slideIn 0.3s ease;
 }
@@ -115,7 +115,7 @@ button:hover {
 
 .bottom-nav {
     position: fixed;
-    bottom: 10px; /* Remonté de 10px */
+    bottom: 10px;
     width: 390px;
     background: #fff;
     display: flex;
@@ -153,7 +153,6 @@ button:hover {
     animation: fadeIn 0.3s ease;
 }
 
-/* Calendar Styles */
 #calendar-view {
     margin-bottom: 20px;
 }
@@ -200,7 +199,6 @@ button:hover {
     border: 2px solid #000;
 }
 
-/* Login Styles */
 .login-container {
     height: 100vh;
     display: flex;
@@ -218,6 +216,10 @@ button:hover {
 #signup {
     background: #f0f0f0;
     color: #000;
+}
+
+#profile-content img {
+    margin-bottom: 15px;
 }
 
 @keyframes slideIn {
