@@ -1,4 +1,65 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-storage.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAsWbRINgyBXJdbgoeL2W3SiOqs8210PlQ",
+    authDomain: "dakapote.firebaseapp.com",
+    projectId: "dakapote",
+    storageBucket: "dakapote.firebasestorage.app",
+    messagingSenderId: "189915267772",
+    appId: "1:189915267772:web:5530794a30db5d0af346b9",
+    measurementId: "G-B1NEQD4WF6"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
 document.addEventListener('DOMContentLoaded', () => {
+    let userId;
+    let practiceEntries = [];
+    let events = [];
+    let repertoire = [];
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = 'login.html';
+        } else {
+            userId = user.uid;
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('user-firstname').textContent = user.displayName || 'Non défini';
+
+            const userDoc = await getDoc(doc(db, 'users', userId));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                document.getElementById('instrument-select').value = userData.instrument || '';
+                if (userData.photoURL) {
+                    document.getElementById('profile-pic').src = userData.photoURL;
+                    document.getElementById('profile-pic').style.display = 'block';
+                }
+            }
+
+            // Chargement des données Firestore
+            onSnapshot(collection(db, `users/${userId}/practice`), (snapshot) => {
+                practiceEntries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderPracticeEntries();
+            });
+            onSnapshot(collection(db, `users/${userId}/events`), (snapshot) => {
+                events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderEvents();
+                renderCalendar();
+            });
+            onSnapshot(collection(db, `users/${userId}/repertoire`), (snapshot) => {
+                repertoire = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderRepertoire();
+                populatePieceSelect();
+            });
+        }
+    });
+
     // Tab Navigation
     const navItems = document.querySelectorAll('.nav-item');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -13,11 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (tabId === 'calendar') renderCalendar();
         });
     });
-
-    // Local Storage (pour le moment, à migrer vers Firebase plus tard)
-    let practiceEntries = JSON.parse(localStorage.getItem('practiceEntries')) || [];
-    let events = JSON.parse(localStorage.getItem('events')) || [];
-    let repertoire = JSON.parse(localStorage.getItem('repertoire')) || [];
 
     // Practice Form
     const practiceForm = document.getElementById('practice-form');
@@ -36,17 +92,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    practiceForm.addEventListener('submit', (e) => {
+    practiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const pieceId = parseInt(pieceSelect.value);
+        const pieceId = pieceSelect.value;
         const notes = practiceForm.querySelector('textarea').value;
         const date = practiceForm.querySelector('input[type="date"]').value;
         const time = practiceForm.querySelector('input[type="time"]').value;
 
-        const entry = { pieceId, notes, date, time, id: Date.now() };
-        practiceEntries.unshift(entry);
-        localStorage.setItem('practiceEntries', JSON.stringify(practiceEntries));
-        renderPracticeEntries();
+        await addDoc(collection(db, `users/${userId}/practice`), { pieceId, notes, date, time });
         practiceForm.reset();
     });
 
@@ -88,21 +141,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextMonthBtn = document.getElementById('next-month');
     let currentDate = new Date();
 
-    eventForm.addEventListener('submit', (e) => {
+    eventForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const title = eventForm.querySelector('input[type="text"]').value;
         const date = eventForm.querySelector('#event-date').value;
-        const event = { title, date, id: Date.now() };
-        events.push(event);
-        events.sort((a, b) => new Date(a.date) - new Date(b.date));
-        localStorage.setItem('events', JSON.stringify(events));
-        renderEvents();
-        renderCalendar();
+        await addDoc(collection(db, `users/${userId}/events`), { title, date });
         eventForm.reset();
     });
 
     function renderEvents() {
         eventList.innerHTML = '';
+        events.sort((a, b) => new Date(a.date) - new Date(b.date));
         events.forEach(event => {
             const div = document.createElement('div');
             div.className = 'entry';
@@ -121,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         calendarDays.innerHTML = '';
 
-        // Ajout des jours de la semaine
         const daysOfWeek = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
         daysOfWeek.forEach(day => {
             const div = document.createElement('div');
@@ -130,13 +178,11 @@ document.addEventListener('DOMContentLoaded', () => {
             calendarDays.appendChild(div);
         });
 
-        // Espaces vides avant le premier jour
-        const startDay = firstDay === 0 ? 6 : firstDay - 1; // Ajustement pour commencer le lundi
+        const startDay = firstDay === 0 ? 6 : firstDay - 1;
         for (let i = 0; i < startDay; i++) {
             calendarDays.appendChild(document.createElement('div'));
         }
 
-        // Jours du mois
         for (let day = 1; day <= daysInMonth; day++) {
             const div = document.createElement('div');
             div.className = 'day';
@@ -167,16 +213,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const repertoireForm = document.getElementById('repertoire-form');
     const repertoireList = document.getElementById('repertoire-list');
 
-    repertoireForm.addEventListener('submit', (e) => {
+    repertoireForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const composer = repertoireForm.querySelector('input[placeholder="Compositeur"]').value;
         const title = repertoireForm.querySelector('input[placeholder="Titre"]').value;
         const type = repertoireForm.querySelector('select').value;
-        const piece = { composer, title, type, id: Date.now() };
-        repertoire.unshift(piece);
-        localStorage.setItem('repertoire', JSON.stringify(repertoire));
-        renderRepertoire();
-        populatePieceSelect();
+        await addDoc(collection(db, `users/${userId}/repertoire`), { composer, title, type });
         repertoireForm.reset();
     });
 
@@ -193,17 +235,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Initial render
-    populatePieceSelect();
-    renderPracticeEntries();
-    renderEvents();
-    renderRepertoire();
-    renderCalendar();
-});
+    // Profile
+    document.getElementById('logout').addEventListener('click', () => {
+        signOut(auth).then(() => {
+            window.location.href = 'login.html';
+        });
+    });
 
-// Service Worker Registration
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('Service Worker registered'))
-        .catch(err => console.log('Service Worker registration failed:', err));
-}
+    document.getElementById('instrument-select').addEventListener('change', async (e) => {
+        await updateDoc(doc(db, 'users', userId), { instrument: e.target.value });
+    });
+
+    document.getElementById('profile-pic-upload').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const storageRef = ref(storage, `profile-pics/${userId}`);
+            await uploadBytes(storageRef, file);
+            const photoURL = await getDownloadURL(storageRef);
+            await updateDoc(doc(db, 'users', userId), { photoURL });
+            document.getElementById('profile-pic').src = photoURL;
+            document.getElementById('profile-pic').style.display = 'block';
+        }
+    });
+
+    document.getElementById('contact').addEventListener('click', () => {
+        window.location.href = 'mailto:info@dacapoapp.com';
+    });
+});
