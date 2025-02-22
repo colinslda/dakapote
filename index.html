@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>DaCapo.</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=DM+Sans&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Journal Section -->
+        <div id="journal" class="tab-content active">
+            <h1>Journal de Répétition</h1>
+            <form id="practice-form">
+                <textarea placeholder="Notes de la répétition..." required></textarea>
+                <input type="date" required>
+                <input type="time" required>
+                <button type="submit">Ajouter</button>
+            </form>
+            <div id="practice-list"></div>
+        </div>
+
+        <!-- Calendar Section -->
+        <div id="calendar" class="tab-content">
+            <h1>Calendrier</h1>
+            <form id="event-form">
+                <input type="text" placeholder="Événement" required>
+                <input type="date" required>
+                <button type="submit">Ajouter Deadline</button>
+            </form>
+            <div id="event-list"></div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="bottom-nav">
+            <button data-tab="journal" class="nav-item active">
+                <span>Journal</span>
+            </button>
+            <button data-tab="calendar" class="nav-item">
+                <span>Calendrier</span>
+            </button>
+        </nav>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
