@@ -13,6 +13,7 @@
     <div class="login-container">
         <h1 class="app-title">DaCapo.</h1>
         <form id="login-form">
+            <input type="text" id="firstname" placeholder="Prénom (pour l'inscription)" required>
             <input type="email" id="email" placeholder="Email" required>
             <input type="password" id="password" placeholder="Mot de passe" required>
             <button type="submit">Se connecter</button>
@@ -22,7 +23,8 @@
     </div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAsWbRINgyBXJdbgoeL2W3SiOqs8210PlQ",
@@ -36,6 +38,7 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -51,9 +54,17 @@
         });
 
         document.getElementById('signup').addEventListener('click', () => {
+            const firstname = document.getElementById('firstname').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    return Promise.all([
+                        updateProfile(user, { displayName: firstname }),
+                        setDoc(doc(db, 'users', user.uid), { firstname, instrument: '', photoURL: '' })
+                    ]);
+                })
                 .then(() => {
                     window.location.href = 'index.html';
                 })
