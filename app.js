@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Local Storage
     let practiceEntries = JSON.parse(localStorage.getItem('practiceEntries')) || [];
     let events = JSON.parse(localStorage.getItem('events')) || [];
+    let repertoire = JSON.parse(localStorage.getItem('repertoire')) || [];
 
     // Practice Form
     const practiceForm = document.getElementById('practice-form');
@@ -79,9 +80,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Repertoire Form
+    const repertoireForm = document.getElementById('repertoire-form');
+    const repertoireList = document.getElementById('repertoire-list');
+
+    repertoireForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const composer = repertoireForm.querySelector('input[placeholder="Compositeur"]').value;
+        const title = repertoireForm.querySelector('input[placeholder="Titre"]').value;
+        const type = repertoireForm.querySelector('select').value;
+
+        const piece = { composer, title, type, id: Date.now() };
+        repertoire.unshift(piece);
+        localStorage.setItem('repertoire', JSON.stringify(repertoire));
+        
+        renderRepertoire();
+        repertoireForm.reset();
+    });
+
+    function renderRepertoire() {
+        repertoireList.innerHTML = '';
+        repertoire.forEach(piece => {
+            const div = document.createElement('div');
+            div.className = 'entry';
+            div.innerHTML = `
+                <p><strong>${piece.composer}</strong> - ${piece.title}</p>
+                <small>${piece.type}</small>
+            `;
+            repertoireList.appendChild(div);
+        });
+    }
+
     // Initial render
     renderPracticeEntries();
     renderEvents();
+    renderRepertoire();
 });
 
 // Service Worker Registration
