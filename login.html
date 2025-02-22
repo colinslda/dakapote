@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>DaCapo. - Connexion</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=DM+Sans&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="login-container">
+        <h1 class="app-title">DaCapo.</h1>
+        <form id="login-form">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Mot de passe" required>
+            <button type="submit">Se connecter</button>
+            <button type="button" id="signup">S'inscrire</button>
+        </form>
+        <p id="error-message" style="color: red;"></p>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAsWbRINgyBXJdbgoeL2W3SiOqs8210PlQ",
+            authDomain: "dakapote.firebaseapp.com",
+            projectId: "dakapote",
+            storageBucket: "dakapote.firebasestorage.app",
+            messagingSenderId: "189915267772",
+            appId: "1:189915267772:web:5530794a30db5d0af346b9",
+            measurementId: "G-B1NEQD4WF6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    window.location.href = 'index.html';
+                })
+                .catch((error) => {
+                    document.getElementById('error-message').textContent = error.message;
+                });
+        });
+
+        document.getElementById('signup').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    window.location.href = 'index.html';
+                })
+                .catch((error) => {
+                    document.getElementById('error-message').textContent = error.message;
+                });
+        });
+    </script>
+</body>
+</html>
